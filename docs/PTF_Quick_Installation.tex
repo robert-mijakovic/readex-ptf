@@ -1,0 +1,91 @@
+\documentclass[12pt]{article} 
+
+\usepackage{geometry} 
+\geometry{a4paper} 
+\usepackage{hyperref}
+
+\begin{document}
+
+\begin{titlepage}\centering
+\vspace*{\fill}
+\Huge \textbf{PTF Quick Installation on Taurus Machine}\\
+{\large \today}\\[3cm] % Date, change the \today to a set date if you want to be precise
+\vspace*{\fill}
+\end{titlepage}
+\clearpage
+\newpage 
+
+\section{PTF Installation} 
+
+This quick installation guide will describe how to checkout or download PTF source and install it and how to do this for Score-P on Taurus Machine. The installation requires to load some mandatory dependencies as modules or compile from source. The steps should be followed in order as given below:
+\begin{itemize}
+\item[1] To checkout PTF source from Git, the git module needs to be loaded on Taurus machine:\\
+\texttt{module load git}
+\item[2] Clone the PTF repository with the following command:\\
+\texttt{git clone \url{https://periscope.in.tum.de/git/Periscope.git}}
+\item[3] Autotools are used to bootstrap and configure PTF. Autotools consist of Libtool, Autoconf, Automake and M4 macro system. The Score-P developer tool wrapper provides these tools which can be loaded by executing:\\
+\texttt{module load scorep-dev}
+\item[4] Lexer and parser generators have to be loaded by executing:\\
+\texttt{module load flex/2.5.39 bison/3.0.4}
+\item[5] Taurus has compiler modules which can be loaded by executing:\\
+\texttt{module load gcc/4.6.2}
+\item[6] Load the ace module (v6.1+):\\
+\texttt{module load ace}
+\item[7] The boost can be loaded by executing:\\
+\texttt{module load boost/1.54.0-gnu4.6}
+\item[8] Bootstrap has to be executed in the source directory of Periscope:\\
+\texttt{./boostrap}
+\item[9] Create a separate directory where the installed PTF binary will be located. For example:\\
+\texttt{mkdir \$HOME/install/periscope}
+\item[9] After bootstrapping, you have to configure PTF by selecting which options
+to use and compile. Create a build folder in the home directory of PTF and go to that directory:\\
+\texttt{mkdir build \&\& cd build}
+\item[10] Execute:\\
+\texttt{ ../configure --prefix=\$HOME/install/periscope \&\& make all -j 16 \&\& make install}
+\item[11] Specify the binary location of installed PTF by following command:\\
+\texttt{export PATH=\$HOME/install/periscope/bin:\$PATH}
+\end{itemize}
+\newpage
+\section{Score-P Installation}
+The instructions for compiling and installing Score-P is described below:
+\begin{itemize}
+\item[1] The svn module has to be loaded as bootstrapping has dependency on it:\\
+\texttt{module load svn} 
+\item[2] Score-P with tuning support source can also be downloaded from Periscope
+web site: \url{http://periscope.in.tum.de/?page_id=67}
+\item[3] Taurus already have modules for Score-P developer tools which can be loaded by executing:
+\texttt{module load scorep-dev} 
+\item[4] Lexer and parser generators have to be loaded by executing:\\
+\texttt{module load flex/2.5.39 bison/3.0.4}
+\item[5] Taurus has compiler modules which can be loaded by executing:\\
+\texttt{module load gcc/4.6.2}
+\item[6] Taurus also has an MPI, OpenMPI based, module which can be loaded by executing:\\
+\texttt{module load bullxmpi}
+\item[7] Create a separate directory where the installed Score-P binary will be located. For example:\\
+\texttt{mkdir \$HOME/install/scorep}
+\item[8] Bootstrap is done by executing the command in the source directory of Score-P:\\
+\texttt{./bootstrap} 
+\item[9] create a build folder inside the home of Score-P source folder.\\
+\texttt{mkdir build \&\& cd build}
+\item[10] Configure Score-P with component headers and library if necessary:\\
+\texttt{../configure --prefix=\$HOME/install/scorep --enable-debug \\
+ --with-nocross-compiler-suite=gcc --enable-backend-test-runs \\
+ --with-mpi=bullxmpi --without-gui} \&\& make all -j 16 \&\& make install
+\item[11] Specify the binary location of installed Score-P by following command:\\
+\texttt{export PATH=\$HOME/install/scorep/bin:\$PATH}
+\end{itemize}
+\section{Running PTF}
+The configuration of Periscope can be loaded from a configuration file. Its
+name is .periscope. Copy a sample of configuration to your home directory:\\
+\texttt{cp Periscope/templates/periscope.sample .persicope }\\
+An example named "add" will be configured for CFS plugin to execute with PTF. The example can be found in \texttt{testcases} folder.\\
+Build the application: \\
+\texttt{make clean \&\& make}\\
+Copy a sample configuration file \texttt{cfs\_config.cfg} and \texttt{add.exe} to \texttt{Taurus} folder:\\
+\texttt{cp cfs\_config.cfg add.exe Taurus}\\
+The example can be executed with
+\texttt{psc\_frontend --apprun=./add.exe --mpinumprocs=1 --tune=compilerflags  --force-localhost --phase="mainRegion" instruction\\
+--cfs-config="cfs\_config.cfg"}\\
+Copy the above instruction to \texttt{psc\_batch\_cfs.slurm} file in \texttt{Taurus} folder and submit the job.\\
+\texttt{sbatch psc\_batch\_cfs.slurm}
+\end{document}
